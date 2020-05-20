@@ -12,15 +12,20 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        title: Text('WarungApp'),
+        actions: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(right: 8.0),
+            child: Icon(Icons.menu)
+          )
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Container(
-              height: 50,
-              width: double.infinity,
-              color: Colors.blue
-            ),
             Stack(
               children: <Widget>[
                 ClipPath(
@@ -87,21 +92,21 @@ class _HomePageState extends State<HomePage> {
                 children: <Widget>[
                   Column(
                     children: <Widget>[
-                      Icon(Icons.favorite_border,size: 48.0),
+                      Icon(Icons.favorite, size: 48.0, color: Colors.red),
                       SizedBox(height: 5),
                       Text('Favorit')
                     ],
                   ),
                   Column(
                     children: <Widget>[
-                      Icon(Icons.place, size: 48.0),
+                      Icon(Icons.place, size: 48.0, color: Colors.red[400]),
                       SizedBox(height: 5),
                       Text('Disekitar')
                     ],
                   ),
                   Column(
                     children: <Widget>[
-                      Icon(Icons.update,size: 48.0),
+                      Icon(Icons.dashboard,size: 48.0, color: Colors.green,),
                       SizedBox(height: 5),
                       Text('Posting')
                     ],
@@ -122,8 +127,8 @@ class _HomePageState extends State<HomePage> {
                     children: <Widget>[
                       RichText(
                         text: TextSpan(
-                          text: 'Rekomendasi hari ini',
-                          style: TextStyle(fontSize: 14.0, color: Colors.grey)
+                          text: 'Rekomendasi makanan hari ini',
+                          style: TextStyle(fontSize: 15.0, color: Colors.grey)
                         ),
                       ),
                       Spacer(),
@@ -133,42 +138,73 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+            SizedBox(height: 16.0),
             SizedBox(
-              height: 100,
+              height: 120,
               child: ListView(
                 shrinkWrap: true,
+                padding: EdgeInsets.only(left: 20, right: 5),
                 scrollDirection: Axis.horizontal,
                 children: <Widget>[
-                 Container(
-                    width: MediaQuery.of(context).size.width * 0.3,
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.25,
                     height: 20.0,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,                      
                       children: <Widget>[
-                        Icon(Icons.place, size: 48.0),
-                        Text('Makanan'),
-                        Text('5 Km')
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.asset("assets/img/mie.jpg", height: 60, width: 80, fit: BoxFit.cover, alignment: Alignment.center),
+                        ),
+                        SizedBox(height: 5.0),                        
+                        Text('Mie Ayam'),
+                        Text('5 Km', style: TextStyle(fontSize: 15.0, color: Colors.grey))
                       ],
                     ),
                   ),
                   Container(
-                    width: MediaQuery.of(context).size.width * 0.3,
+                    width: MediaQuery.of(context).size.width * 0.25,
                     height: 20.0,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Icon(Icons.place, size: 48.0),
-                        Text('Makanan'),
-                        Text('5 Km')
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.asset("assets/img/soto.jpg", height: 60, width: 80, fit: BoxFit.cover, alignment: Alignment.center),
+                        ),
+                        SizedBox(height: 5.0),
+                        Text('Soto Sutar'),
+                        Text('5 Km', style: TextStyle(fontSize: 15.0, color: Colors.grey))
                       ],
                     ),
                   ),
                   Container(
-                    width: MediaQuery.of(context).size.width * 0.3,
+                    width: MediaQuery.of(context).size.width * 0.25,
+                    height: 20.0,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,                      
+                      children: <Widget>[
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.asset("assets/img/pecel.jpg", height: 60, width: 80, fit: BoxFit.cover, alignment: Alignment.center),
+                        ),
+                        SizedBox(height: 5.0),
+                        Text('Pecel Emak'),
+                        Text('5 Km', style: TextStyle(fontSize: 15.0, color: Colors.grey))
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.25,
                     height: 20.0,
                     child: Column(
                       children: <Widget>[
-                        Icon(Icons.place, size: 48.0),
-                        Text('Makanan'),
-                        Text('5 Km')
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.asset("assets/img/nasi-rames.jpg", height: 60, width: 80, fit: BoxFit.cover, alignment: Alignment.center),
+                        ),
+                        Text('Ramesan'),
+                        Text('5 Km', style: TextStyle(fontSize: 15.0, color: Colors.grey))
                       ],
                     ),
                   ),
@@ -188,8 +224,8 @@ class _HomePageState extends State<HomePage> {
                     children: <Widget>[
                       RichText(
                         text: TextSpan(
-                          text: 'Rekomendasi hari ini',
-                          style: TextStyle(fontSize: 14.0, color: Colors.grey)
+                          text: 'Rekomendasi Warung hari ini',
+                          style: TextStyle(fontSize: 15.0, color: Colors.grey)
                         ),
                       ),
                       Spacer(),
@@ -199,42 +235,73 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+            SizedBox(height: 16),
             SizedBox(
-              height: 100,
+              height: 120,
               child: ListView(
+                padding: EdgeInsets.only(left: 20, right: 5),                
                 shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
                 children: <Widget>[
                   Container(
-                    width: MediaQuery.of(context).size.width * 0.3,
+                    width: MediaQuery.of(context).size.width * 0.25,
                     height: 20.0,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,                      
                       children: <Widget>[
-                        Icon(Icons.place, size: 48.0),
-                        Text('Makanan'),
-                        Text('5 Km')
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.asset("assets/img/logo-warung-makan-png-1.png", height: 60, width: 80, fit: BoxFit.cover, alignment: Alignment.center),
+                        ),
+                        SizedBox(height: 5.0),                        
+                        Text('Rumah Nasi Goreng'),
+                        Text('1.3 Km', style: TextStyle(fontSize: 15.0, color: Colors.grey))
                       ],
                     ),
                   ),
                   Container(
-                    width: MediaQuery.of(context).size.width * 0.3,
+                    width: MediaQuery.of(context).size.width * 0.25,
                     height: 20.0,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Icon(Icons.place, size: 48.0),
-                        Text('Makanan'),
-                        Text('5 Km')
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.asset("assets/img/logo-warung-makan-png-6.png", height: 60, width: 80, fit: BoxFit.cover, alignment: Alignment.center),
+                        ),
+                        SizedBox(height: 5.0),
+                        Text('SEDERHANA'),
+                        Text('2 Km', style: TextStyle(fontSize: 15.0, color: Colors.grey))
                       ],
                     ),
                   ),
                   Container(
-                    width: MediaQuery.of(context).size.width * 0.3,
+                    width: MediaQuery.of(context).size.width * 0.25,
+                    height: 20.0,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,                      
+                      children: <Widget>[
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.asset("assets/img/logo-warung-makan-png-8.png", height: 60, width: 80, fit: BoxFit.cover, alignment: Alignment.center),
+                        ),
+                        SizedBox(height: 5.0),
+                        Text('LC Catering'),
+                        Text('4.1 Km', style: TextStyle(fontSize: 15.0, color: Colors.grey))
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.25,
                     height: 20.0,
                     child: Column(
                       children: <Widget>[
-                        Icon(Icons.place, size: 48.0),
-                        Text('Makanan'),
-                        Text('5 Km')
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.asset("assets/img/logo-warung-makan-png-9.png", height: 60, width: 80, fit: BoxFit.cover, alignment: Alignment.center),
+                        ),
+                        Text('Depot Sentral'),
+                        Text('0.5 Km', style: TextStyle(fontSize: 15.0, color: Colors.grey))
                       ],
                     ),
                   ),
@@ -249,15 +316,15 @@ class _HomePageState extends State<HomePage> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home, size: 30.0),
-            title: Text('Home')
+            title: Text('Home', style: TextStyle(fontWeight: FontWeight.bold))
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat, size: 30.0),
-            title: Text('Ulasan')
+            title: Text('Ulasan', style: TextStyle(fontWeight: FontWeight.bold))
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person, size: 30.0),
-            title: Text('Profile')
+            title: Text('Profile',style: TextStyle(fontWeight: FontWeight.bold))
           )
         ],
       ),
