@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:warungapp_mobile/ui/pages/login.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   @override
@@ -6,6 +10,48 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  SharedPreferences sharedPreferences;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    checkLocationPermission();
+    checkLoginStatus();
+  }
+
+  checkLocationPermission() async {
+    GeolocationStatus geolocationStatus  = await Geolocator().checkGeolocationPermissionStatus();
+    return geolocationStatus;
+  }
+  
+  checkLoginStatus() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.setString('url', 'http://192.168.85.82:8000');
+    print(sharedPreferences.getString('token'));
+    if(!(await checkExpired())) {
+      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => LoginPage()) , (route) => false);
+    }
+    if(sharedPreferences.getString('token') == null ) {
+      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => LoginPage()) , (route) => false);
+    }
+  }
+
+  Future<bool> checkExpired() async {    
+    sharedPreferences = await SharedPreferences.getInstance();
+    String token = sharedPreferences.getString('token');
+    String url = sharedPreferences.getString('url')+'/api/auth/me';
+    var response = await http.get(url, headers: {
+      'Authorization': 'Bearer $token'
+    });
+    if(response.statusCode == 401) {
+      print('Response ${response.body}');
+      print('Expired token');
+      return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,7 +175,12 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       Spacer(),
-                      Text('Lihat Semua >', style: TextStyle(fontSize: 14.0, color: Colors.grey))
+                      GestureDetector(
+                        child: Text('Lihat Semua >', style: TextStyle(fontSize: 14.0, color: Colors.grey)),
+                        onTap: () {
+                          Navigator.pushNamed(context, '/warungs/list');
+                        },
+                      )
                     ],
                   )
                 ],
@@ -158,7 +209,12 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       Spacer(),
-                      Text('Lihat Semua >', style: TextStyle(fontSize: 14.0, color: Colors.grey))
+                      GestureDetector(
+                        child: Text('Lihat Semua >', style: TextStyle(fontSize: 14.0, color: Colors.grey)),
+                        onTap: () {
+                          Navigator.pushNamed(context, '/warungs/list');
+                        },
+                      )
                     ],
                   )
                 ],
@@ -191,6 +247,8 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+
 }
 
 Widget rekomendasiMakanan(BuildContext context) {
