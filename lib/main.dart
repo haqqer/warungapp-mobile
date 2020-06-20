@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:warungapp_mobile/ui/pages/home.dart';
-import 'package:warungapp_mobile/ui/pages/login.dart';
-import 'package:warungapp_mobile/ui/warung/list.dart';
+import 'package:pembangunan/ui/pages/pembangunan.dart';
+import 'package:pembangunan/ui/pages/home.dart';
+import 'package:pembangunan/ui/pages/login.dart';
 
 void main() => runApp(MyApp());
 
@@ -20,7 +19,7 @@ class MyApp extends StatelessWidget {
       routes: <String, WidgetBuilder> {
         '/login': (context) => LoginPage(),
         '/home': (context) => HomePage(),
-        '/warungs/list': (context) => ListWarungPage(),
+        '/pembangunan/create': (context) => PembangunanPage(),
       },
     );
   }

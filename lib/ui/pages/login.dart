@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:warungapp_mobile/ui/pages/home.dart';
+import 'package:pembangunan/ui/pages/home.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -13,28 +13,27 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
 
-  final TextEditingController emailController = new TextEditingController();
+  final TextEditingController usernameController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
 
-  signIn(String email, String pass) async {
+  signIn(String username, String pass) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     Map data = {
-      'email': email,
+      'username': username,
       'password': pass
     };
 
-    var jsonResponse = null;
+    var jsonResponse = {};
     String url = sharedPreferences.getString('url')+'/api/auth/login';
     var response = await http.post(url, body: data);
     if(response.statusCode == 200) {
       jsonResponse = json.decode(response.body);
-      print('Response : ${jsonResponse}');
+      print('Response : $jsonResponse');
       if(jsonResponse != null) {
         setState(() {
           _isLoading = false;
         });
         sharedPreferences.setString("token", jsonResponse['result']['access_token']);
-        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => HomePage()), (route) => false);
       }
     } else {
       setState(() {
@@ -42,82 +41,110 @@ class _LoginPageState extends State<LoginPage> {
       });
       print(response.body);
     }
+    getUser();
   }
 
+  getUser() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String url = sharedPreferences.getString('url')+'/api/auth/me';
+    String token = sharedPreferences.getString('token');
+    var jsonResponse = null;
+    var response = await http.get(url, headers: {
+      'Authorization': 'Bearer $token'
+    });
+    if(response.statusCode == 200) {
+      jsonResponse = json.decode(response.body)['user'];
+      sharedPreferences.setString('user_id', jsonResponse['id'].toString());
+      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => HomePage()), (route) => false);
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+      print(response.body);
+    }
+    // Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => HomePage()), (route) => false);
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            Stack(
-              alignment: Alignment.center,
-              children: <Widget>[
-                ClipPath(
-                  clipper: HeaderClipper(),
-                  child: Container(
-                    height: MediaQuery.of(context).size.height - 160,
-                    color: Theme.of(context).primaryColor,
+    return SafeArea(
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              Stack(
+                alignment: Alignment.center,
+                children: <Widget>[
+                  ClipPath(
+                    clipper: HeaderClipper(),
+                    child: Container(
+                      height: MediaQuery.of(context).size.height - 160,
+                      color: Colors.red,
+                    ),
                   ),
-                ),
-                Column(
-                  children: <Widget>[
-                    Image.asset('assets/icon/warungapp.png', height: 80),
-                    SizedBox(height: 40),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextField(
-                        controller: emailController,
-                        decoration: InputDecoration(
-                          hintText: 'Email',
-                          contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 25),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25)
+                  Column(
+                    children: <Widget>[
+                      SizedBox(height: 40),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                        child: TextField(
+                          controller: usernameController,
+                          decoration: InputDecoration(
+                            hintText: 'Username',
+                            contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25)
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextField(
-                        controller: passwordController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          hintText: 'Password',
-                          contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 25),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                        child: TextField(
+                          controller: passwordController,
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            hintText: 'Password',
+                            contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25)
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    RaisedButton(
-                      child: Text('Login'),
-                      onPressed: emailController.text == "" || passwordController.text == "" ? null : () {
-                        setState(() {
-                          _isLoading = true;
-                        });
-                        signIn(emailController.text, passwordController.text);
-                      }
-                    )
-                  ],
-                )
-              ],
-            ),
-            // Container(
-            //   height: MediaQuery.of(context).size.height - 250,
-            //   color: Theme.of(context).primaryColor,
-            //   width: double.infinity,               
-            // ),
-          ],
-        ),
-      )
+                      SizedBox(height: 30),
+                      RaisedButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16.0)
+                        ),
+                        color: Colors.white,
+                        child: Text('Login', style: TextStyle(fontSize: 18.0)),
+                        onPressed: usernameController.text == "" || passwordController.text == "" ? null : () {
+                          setState(() {
+                            _isLoading = true;
+                          });
+                          signIn(usernameController.text, passwordController.text);
+                        }
+                      )
+                    ],
+                  )
+                ],
+              ),
+              // Container(
+              //   height: MediaQuery.of(context).size.height - 250,
+              //   color: Theme.of(context).primaryColor,
+              //   width: double.infinity,               
+              // ),
+            ],
+          ),
+        )
+      ),
     );
   }
 }
