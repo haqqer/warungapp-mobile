@@ -1,20 +1,20 @@
 class Photo {
   int id;
   int userId;
-  int pembangunanId;
+  int warungId;
   String path;
   
-  Photo({this.id, this.userId, this.pembangunanId, this.path});
+  Photo({this.id, this.userId, this.warungId, this.path});
 
   Photo.fromJson(Map<String, dynamic> json)
     : id = json['id'],
       userId = json['user_id'],
-      pembangunanId = json['pembangunan_id'],
+      warungId = json['warung_id'],
       path = json['path'];
 
   Map<String, dynamic> toJson() => {
     'user_id': userId,
-    'pembangunan_id': pembangunanId,
+    'warung_id': warungId,
     'path': path
   };
 }
