@@ -1,12 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:pembangunan/models/Pembangunan.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pembangunan/ui/pages/login.dart';
-import 'package:http/http.dart' as http;
+import 'package:warungapp/services/geo_service.dart';
+import 'package:warungapp/services/login_service.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -15,8 +11,22 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   SharedPreferences sharedPreferences;
-  List<Pembangunan> pembangunans = List();
   bool _isLoading = false;
+  int navbarIndex = 0;
+  List<BottomNavigationBarItem> _bottomNavbar = [
+    BottomNavigationBarItem(
+      icon: Icon(Icons.home),
+      title: Text('Home')
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.add),
+      title: Text('Add Warung'),
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.people),
+      title: Text('Profile')
+    ),
+  ];
 
   @override
   void initState() {
@@ -24,84 +34,26 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     checkLocationPermission();
     checkLoginStatus();
-    getDataPembangunan();
   }
 
-  checkLocationPermission() async {
-    GeolocationStatus geolocationStatus  = await Geolocator().checkGeolocationPermissionStatus();
-    final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
-    final myLocation = await geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
-    print('geolocation');
-    print(geolocationStatus.value);
-    print(myLocation);
-  }
   
   checkLoginStatus() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.setString('url', 'http://192.168.1.38:8000');
-    print(sharedPreferences.getString('token'));
-    if(!(await checkExpired())) {
-      print('expired');
-      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => LoginPage()) , (route) => false);
-    }
-    if(sharedPreferences.getString('token') == null ) {
-      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => LoginPage()) , (route) => false);
+    bool status = await checkExpired();
+    if(!status) {
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }
   }
-
-  logout() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.clear();
-    await sharedPreferences.setString('url', 'http://192.168.1.38:8000');
-    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => LoginPage()) , (route) => false);
-  }
-
-  Future<bool> checkExpired() async {    
-    sharedPreferences = await SharedPreferences.getInstance();
-    String token = sharedPreferences.getString('token');
-    String url = sharedPreferences.getString('url')+'/api/auth/me';
-    var response = await http.get(url, headers: {
-      'Authorization': 'Bearer $token'
-    });
-    if(response.statusCode == 401) {
-      print('Response ${response.body}');
-      print('Expired token');
-      return false;
-    }
-    return true;
-  }
-
-  getDataPembangunan() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    setState(() {
-      _isLoading = true;
-    });
-    String url = sharedPreferences.getString('url')+'/api/pembangunan';
-    String token = sharedPreferences.getString('token');
-    var jsonResponse = [];
-    var response = await http.get(url, headers: {
-      'Authorization': 'Bearer $token'
-    });
-    if(response.statusCode == 200) {
-      // jsonResponse = json.decode(response.body)['result']['pembangunans']['data'];
-      jsonResponse = json.decode(response.body)['result']['pembangunans']['data'];
-      print(jsonResponse);
-      if(jsonResponse != null) {
-        pembangunans = jsonResponse.map<Pembangunan>((item) => Pembangunan.fromJson(item)).toList();
-        setState(() {
-        _isLoading = false;
-      });
-      } else {
-        print('error');
-      }      
+  
+  _onNavbarTap(index) {
+    if(index == 1) {
+      Navigator.pushNamed(context, '/warung/location');
     } else {
       setState(() {
-        _isLoading = false;
+        navbarIndex = index;
       });
-      print(response.body);
     }
-    // Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => HomePage()), (route) => false);
-  }  
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -113,7 +65,7 @@ class _HomePageState extends State<HomePage> {
               ListTile(
                 title: Text('Logout'),
                 onTap: () {
-                  logout();
+                  // logout();
                 },
               ),
               ListTile(
@@ -125,57 +77,27 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         appBar: AppBar(
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.blue,
           elevation: 0,
           title: Text('Pembangunan'),
-          actions: <Widget>[
-            // RaisedButton(
-            //   color: Colors.red,
-            //   child: Icon(Icons.delete, color: Colors.white),
-            //   onPressed: () {
-            //     logout();
-            //   },
-            // )
-            IconButton(
-              onPressed: () {
-                getDataPembangunan();
-              },
-              icon: Icon(Icons.refresh),
-            )
-          ],
         ),
         body: SingleChildScrollView(
           physics: ScrollPhysics(),
-          child: Column(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: _isLoading ? Center(child: CircularProgressIndicator()) : ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: pembangunans.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Card(
-                        child: ListTile(
-                          title: Text(pembangunans[index].keterangan), 
-                          subtitle: pembangunans[index].pilihan != 0 ? Text('Ya') : Text('Tidak'),
-                          onTap: () {
-
-                          },
-                          trailing: Icon(Icons.menu),
-                        )
-                      );
-                    },
-                  ),
-              ),
-            ],
+          child: Container(
+            child: Center(
+              child: Column(
+                children: <Widget>[
+                  RaisedButton(child: Text('Login'), onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false)),
+                  RaisedButton(child: Text('Warung'), onPressed: () => Navigator.pushNamed(context, '/warung'))
+                ],
+              )
+            ),
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.pushNamed(context, '/pembangunan/create');
-          },
-          child: Icon(Icons.add),
+        bottomNavigationBar: BottomNavigationBar(
+          items: _bottomNavbar,
+          onTap: _onNavbarTap,
+          currentIndex: navbarIndex,
         ),
       ),
     );
