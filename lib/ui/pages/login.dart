@@ -1,9 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import 'package:pembangunan/ui/pages/home.dart';
+import 'package:warungapp/services/login_service.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -13,57 +11,41 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
 
-  final TextEditingController usernameController = new TextEditingController();
+  final TextEditingController emailController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
 
-  signIn(String username, String pass) async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    Map data = {
-      'username': username,
-      'password': pass
-    };
-
-    var jsonResponse = {};
-    String url = sharedPreferences.getString('url')+'/api/auth/login';
-    var response = await http.post(url, body: data);
-    if(response.statusCode == 200) {
-      jsonResponse = json.decode(response.body);
-      print('Response : $jsonResponse');
-      if(jsonResponse != null) {
-        setState(() {
-          _isLoading = false;
-        });
-        sharedPreferences.setString("token", jsonResponse['result']['access_token']);
-      }
-    } else {
+  login(String email, String pass) async {
+    final result = await signIn(email, pass);
+    if(result) {
       setState(() {
-        _isLoading = false;
+        _isLoading = false;        
       });
-      print(response.body);
+      Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+    } else {
+      debugPrint('gagal ambil token');
     }
-    getUser();
   }
 
-  getUser() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    String url = sharedPreferences.getString('url')+'/api/auth/me';
-    String token = sharedPreferences.getString('token');
-    var jsonResponse = null;
-    var response = await http.get(url, headers: {
-      'Authorization': 'Bearer $token'
-    });
-    if(response.statusCode == 200) {
-      jsonResponse = json.decode(response.body)['user'];
-      sharedPreferences.setString('user_id', jsonResponse['id'].toString());
-      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => HomePage()), (route) => false);
-    } else {
-      setState(() {
-        _isLoading = false;
-      });
-      print(response.body);
-    }
-    // Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => HomePage()), (route) => false);
-  }
+  // getUser() async {
+  //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  //   String url = sharedPreferences.getString('url')+'/api/auth/me';
+  //   String token = sharedPreferences.getString('token');
+  //   var jsonResponse = null;
+  //   var response = await http.get(url, headers: {
+  //     'Authorization': 'Bearer $token'
+  //   });
+  //   if(response.statusCode == 200) {
+  //     jsonResponse = json.decode(response.body)['user'];
+  //     sharedPreferences.setString('user_id', jsonResponse['id'].toString());
+  //     Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => HomePage()), (route) => false);
+  //   } else {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //     print(response.body);
+  //   }
+  //   // Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => HomePage()), (route) => false);
+  // }
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -81,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
                     clipper: HeaderClipper(),
                     child: Container(
                       height: MediaQuery.of(context).size.height - 160,
-                      color: Colors.red,
+                      color: Colors.blue,
                     ),
                   ),
                   Column(
@@ -90,9 +72,9 @@ class _LoginPageState extends State<LoginPage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
                         child: TextField(
-                          controller: usernameController,
+                          controller: emailController,
                           decoration: InputDecoration(
-                            hintText: 'Username',
+                            hintText: 'Email',
                             contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 25),
                             filled: true,
                             fillColor: Colors.white,
@@ -125,11 +107,11 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         color: Colors.white,
                         child: Text('Login', style: TextStyle(fontSize: 18.0)),
-                        onPressed: usernameController.text == "" || passwordController.text == "" ? null : () {
+                        onPressed: emailController.text == "" || passwordController.text == "" ? null : () {
                           setState(() {
                             _isLoading = true;
                           });
-                          signIn(usernameController.text, passwordController.text);
+                          login(emailController.text, passwordController.text);
                         }
                       )
                     ],
