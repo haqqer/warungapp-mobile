@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:pembangunan/ui/pages/pembangunan.dart';
-import 'package:pembangunan/ui/pages/home.dart';
-import 'package:pembangunan/ui/pages/login.dart';
+import 'package:provider/provider.dart';
+import 'package:warungapp/provider/provider_auth.dart';
+import 'package:warungapp/ui/pages/home.dart';
+import 'package:warungapp/ui/pages/login.dart';
+import 'package:warungapp/ui/pages/warung/createWarung.dart';
+import 'package:warungapp/ui/pages/warung/getWarungLocation.dart';
+import 'package:warungapp/ui/pages/warung/listWarung.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(
+  ChangeNotifierProvider(
+    create: (context) => ProviderAuth(),
+    child: MyApp()
+  )
+);
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -15,11 +24,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomePage(),
-      routes: <String, WidgetBuilder> {
+      initialRoute: '/',
+      routes: {
+        '/': (context) => HomePage(),
         '/login': (context) => LoginPage(),
-        '/home': (context) => HomePage(),
-        '/pembangunan/create': (context) => PembangunanPage(),
+        '/warung': (context) => ListWarungPage(),
+        '/warung/create': (context) => CreateWarungPage(),
+        '/warung/location': (context) => GetWarungLocationPage(),
       },
     );
   }
