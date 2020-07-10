@@ -60,11 +60,34 @@ Future<List<Warung>> getWarungs() async {
     }      
   } else {
     return warungs;
-  }    
+  }
+}
+
+Future<List<Warung>> getWarungsAll() async {
+  final url = BASE_URL_DEV+WARUNG+'/filter';
+  final token = await getToken();
+  var jsonResponse = [];
+  List<Warung> warungs = List<Warung>();
+  var response = await http.get(url, headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer $token'
+  });
+  if(response.statusCode == 200) {
+    jsonResponse = json.decode(response.body)['result']['data'];
+    if(jsonResponse != null) {
+      warungs = jsonResponse.map<Warung>((item) => Warung.fromJson(item)).toList();
+      return warungs;
+    } else {
+      print('error');
+    }      
+  } else {
+    return warungs;
+  }
 }
 
 Future<Warung> getWarungById(int warungId) async {
   final url = BASE_URL_DEV+WARUNG+'/'+warungId.toString();
+  print(url);
   final token = await getToken();
   var jsonResponse = {};
   Warung warung = Warung();
