@@ -50,23 +50,48 @@ class _ListWarungPageState extends State<ListWarungPage> {
         ),
         body: SingleChildScrollView(
           child: Container(
+            padding: EdgeInsets.symmetric(vertical: 25, horizontal: 8.0),
             height: MediaQuery.of(context).size.height,
             child: _isLoading ? Center(child: CircularProgressIndicator()) : ListView.builder(
               shrinkWrap: true,
               itemCount: _warungs.length,
               itemBuilder: (BuildContext context, int index) {
                 _photos = _warungs[index].photos;
-                print(_photos);
-                return Card(
-                  child: ListTile(
-                    leading: _photos.length > 0 ? Image.network(UPLOAD+'/'+_photos[0].path, fit: BoxFit.fitWidth, alignment: FractionalOffset.center) : Text('gambar'),
-                    title: Text(_warungs[index].name), 
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => GetWarungPage(warungId: _warungs[index].id)));
-                    },
-                    trailing: Icon(Icons.menu),
-                  )
-                );                
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => GetWarungPage(warungId: _warungs[index].id)), (route) => false);
+                  },
+                  child: Card(
+                    elevation: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: <Widget>[
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: _warungs[index].photos.length > 0  ? Image.network(
+                              UPLOAD+'/'+_warungs[index].photos[0].path,
+                              width: MediaQuery.of(context).size.width * 0.2,
+                              height: MediaQuery.of(context).size.width * 0.2,
+                              fit: BoxFit.fill, alignment: FractionalOffset.center
+                            ) : Icon(Icons.camera_alt, size: MediaQuery.of(context).size.width * 0.2),
+                          ),
+                          Container(
+                            padding: EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(_warungs[index].name, style: Theme.of(context).textTheme.subtitle2),
+                                SizedBox(height: 8),
+                                Text(_warungs[index].description, style: Theme.of(context).textTheme.bodyText2),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                );
               }
             )  
           )
