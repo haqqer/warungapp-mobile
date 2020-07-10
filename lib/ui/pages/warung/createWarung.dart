@@ -11,6 +11,8 @@ import 'package:warungapp/services/geo_service.dart';
 import 'package:warungapp/services/warung_service.dart';
 
 class CreateWarungPage extends StatefulWidget {
+  final String address;
+  CreateWarungPage({ this.address });
   @override
   _CreateWarungPageState createState() => _CreateWarungPageState();
 }
@@ -36,6 +38,7 @@ class _CreateWarungPageState extends State<CreateWarungPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    addressController.text = widget.address;
     // getCurrentLocation();
   }
 
@@ -110,7 +113,7 @@ class _CreateWarungPageState extends State<CreateWarungPage> {
   @override
   Widget build(BuildContext context) {
     state = Provider.of<ProviderAuth>(context);
-    addressController.text = state.getAddress;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Create Warung'),
@@ -154,7 +157,8 @@ class _CreateWarungPageState extends State<CreateWarungPage> {
                 ),
               ),
               RaisedButton(
-                child: Text('Send Data'), 
+                
+                child: Text('Create'), 
                 onPressed: () {
                   sendData(nameController.text, descController.text, addressController.text, state.getPosition);
                 }

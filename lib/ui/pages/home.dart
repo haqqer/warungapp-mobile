@@ -95,6 +95,9 @@ class _HomePageState extends State<HomePage> {
             ]
           ),
         ),
+        appBar: AppBar(
+          elevation: 0,
+        ),
         body: SingleChildScrollView(
           physics: ScrollPhysics(),
           child: Container(
@@ -111,18 +114,22 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                       child: Column(
                         children: <Widget>[
                           TextField(
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white,
-                              hintText: 'Search',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25)
-                              ),                    
-                            ),
+                              onTap: () {
+                                Navigator.pushNamed(context, '/warung');
+                              },
+                              style: TextStyle(fontSize: 14.0),
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.white,
+                                hintText: 'Search',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25)
+                                ),                    
+                              ),
                           ),
                           SizedBox(height: 30),
                           Card(
@@ -281,7 +288,7 @@ class HeaderClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     var path = Path();
     path.lineTo(0, size.height - 80);
-    path.quadraticBezierTo(size.width/2, size.height, size.width, size.height - 80);
+    path.quadraticBezierTo(size.width/2, size.height, size.width, size.height - 70);
     path.lineTo(size.width, 0);
     path.close();
     return path;    

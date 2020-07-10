@@ -164,7 +164,7 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
                 ),
               ),              
               RaisedButton(
-                child: Text('Send Data'), 
+                child: Text('Create'), 
                 onPressed: () {
                   sendData(widget.warung.id, nameController.text, descController.text, dropdownValue, int.parse(priceController.text));
                 }

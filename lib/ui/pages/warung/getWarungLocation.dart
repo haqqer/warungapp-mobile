@@ -5,6 +5,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:warungapp/provider/provider_auth.dart';
 import 'package:warungapp/services/geo_service.dart';
+import 'package:warungapp/ui/pages/warung/createWarung.dart';
+
 class GetWarungLocationPage extends StatefulWidget {
   @override
   _GetWarungLocationPageState createState() => _GetWarungLocationPageState();
@@ -51,12 +53,13 @@ class _GetWarungLocationPageState extends State<GetWarungLocationPage> {
       appBar: AppBar(
         title: Text('Lokasi Warung'),
       ),
-      body: SingleChildScrollView(
+      body: Container(
         child: Column(
           children: <Widget>[
-            Container(
-              height: MediaQuery.of(context).size.height - 80,
-              width: MediaQuery.of(context).size.width,
+            Expanded(
+              flex: 1,
+              // height: MediaQuery.of(context).size.height - 100,
+              // width: double.infinity,
               child: GoogleMap(
                 mapType: MapType.normal,
                 zoomControlsEnabled: false,
@@ -80,7 +83,11 @@ class _GetWarungLocationPageState extends State<GetWarungLocationPage> {
                   });
                 },
               ),                
-            )
+            ),
+            // Expanded(
+            //   flex: 1,
+            //   child: Text(''),
+            // )
           ],
         ),
       ),
@@ -88,7 +95,7 @@ class _GetWarungLocationPageState extends State<GetWarungLocationPage> {
         onPressed: () {
           state.setPosition(LatLng(currentPosition.latitude, currentPosition.longitude));
           state.setAddress(nameLocation);
-          Navigator.pushNamed(context, '/warung/create');
+          Navigator.push(context, MaterialPageRoute(builder: (context) => CreateWarungPage(address: nameLocation)));
         },
         child: Icon(Icons.check),
       ),
