@@ -6,20 +6,23 @@ import 'package:http/http.dart' as http;
 import 'package:warungapp/models/Comment.dart';
 import 'package:warungapp/services/login_service.dart';
 
-Future<Map<String, dynamic>> postComment(Comment comment, List<File> imageFile) async {
-  final url = BASE_URL_DEV+FOOD;
+Future<Map<String, dynamic>> postComment(Comment comment) async {
+  final url = BASE_URL_DEV+COMMENT;
   final token = await getToken();
   Map data = {
     'warung_id': comment.warungId,
-    'comment': comment,
-    'score': comment.score
+    'comment': comment.comment,
+    'score': comment.score,
+    "status": 1
   };
+  print(data);
   var jsonResponse = {};
   var response = await http.post(url, headers: {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer $token'
-  }, body: data);
-  if(response.statusCode == 200) {
+  }, body: json.encode(data));
+  print(response.body);
+  if(response.statusCode == 201) {
     jsonResponse = json.decode(response.body);
     print('Response : $jsonResponse');
     if(jsonResponse != null) {
