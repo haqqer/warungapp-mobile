@@ -68,6 +68,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   Column(
                     children: <Widget>[
+                      Image.asset('assets/icon/warungapp.png'),
                       SizedBox(height: 40),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
