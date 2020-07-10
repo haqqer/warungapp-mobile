@@ -6,6 +6,7 @@ import 'package:warungapp/ui/pages/login.dart';
 import 'package:warungapp/ui/pages/warung/createWarung.dart';
 import 'package:warungapp/ui/pages/warung/getWarungLocation.dart';
 import 'package:warungapp/ui/pages/warung/listWarung.dart';
+import 'package:warungapp/ui/pages/warung/locationWarung.dart';
 
 void main() => runApp(
   ChangeNotifierProvider(
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
         '/warung': (context) => ListWarungPage(),
         '/warung/create': (context) => CreateWarungPage(),
         '/warung/location': (context) => GetWarungLocationPage(),
+        '/warung/location_arrond': (context) => LocationWarungPage(),
       },
     );
   }
