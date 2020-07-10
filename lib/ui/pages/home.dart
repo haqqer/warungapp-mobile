@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:warungapp/data/endpoint.dart';
+import 'package:warungapp/models/Warung.dart';
 import 'package:warungapp/services/geo_service.dart';
 import 'package:warungapp/services/login_service.dart';
+import 'package:warungapp/services/warung_service.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -13,6 +16,7 @@ class _HomePageState extends State<HomePage> {
   SharedPreferences sharedPreferences;
   bool _isLoading = false;
   int navbarIndex = 0;
+  List<Warung> _warungs = [];
   List<BottomNavigationBarItem> _bottomNavbar = [
     BottomNavigationBarItem(
       icon: Icon(Icons.home),
@@ -34,6 +38,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     checkLocationPermission();
     checkLoginStatus();
+    // getDataWarungs();
   }
 
   
@@ -41,6 +46,8 @@ class _HomePageState extends State<HomePage> {
     bool status = await checkExpired();
     if(!status) {
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    } else {
+      getDataWarungs();
     }
   }
   
@@ -52,6 +59,18 @@ class _HomePageState extends State<HomePage> {
         navbarIndex = index;
       });
     }
+  }
+
+  getDataWarungs() async {
+    setState(() {
+      _isLoading = true;
+    });    
+    final result = await getWarungsAll();
+    setState(() {
+      _warungs = result;
+      print(_warungs);
+      _isLoading = false;
+    });
   }
 
   @override
@@ -76,21 +95,169 @@ class _HomePageState extends State<HomePage> {
             ]
           ),
         ),
-        appBar: AppBar(
-          backgroundColor: Colors.blue,
-          elevation: 0,
-          title: Text('Pembangunan'),
-        ),
         body: SingleChildScrollView(
           physics: ScrollPhysics(),
           child: Container(
-            child: Center(
-              child: Column(
-                children: <Widget>[
-                  RaisedButton(child: Text('Login'), onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false)),
-                  RaisedButton(child: Text('Warung'), onPressed: () => Navigator.pushNamed(context, '/warung'))
-                ],
-              )
+            child: Column(
+              children: <Widget>[
+                Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    ClipPath(
+                      clipper: HeaderClipper(),
+                      child: Container(
+                        height: 270,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: <Widget>[
+                          TextField(
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              hintText: 'Search',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25)
+                              ),                    
+                            ),
+                          ),
+                          SizedBox(height: 30),
+                          Card(
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+                              child: Text('Hai\nMau Makan Apa hari ini?', style: TextStyle(color: Colors.black54, fontSize: 20))
+                            ),
+                          ),                    
+
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                // RaisedButton(child: Text('Login'), onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false)),
+                // RaisedButton(child: Text('Warung'), onPressed: () => Navigator.pushNamed(context, '/warung'))
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      Column(children: <Widget>[
+                          IconButton(
+                            icon: Icon(Icons.star, color: Colors.amber, size: 30),
+                            onPressed: () {
+                              print('test');
+                            },
+                          ),
+                          Text('Favorit')
+                        ]
+                      ),
+                      Column(
+                        children: <Widget>[
+                          IconButton(
+                            icon: Icon(Icons.place, color: Colors.red, size: 30),
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/warung/location_arrond');
+                            },
+                          ),
+                          Text('Lokasi')
+                        ],
+                      ),
+                      Column(
+                        children: <Widget>[
+                          IconButton(
+                            icon: Icon(Icons.comment, color: Colors.yellow, size: 30),
+                            onPressed: () {
+                              print('ulasan');
+                            },
+                          ),
+                          Text('Ulasan')
+                        ],
+                      ),
+                    ],
+                  ),
+                SizedBox(height: 25),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text('Rekomendasi Warung ini', style: TextStyle(color: Colors.black54)),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, '/warung');
+                        },
+                        child: Text('Lihat Semua >', style: TextStyle(color: Colors.black54))
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  height: 120,
+                  child:  ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _warungs.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        padding: EdgeInsets.all(8.0),
+                        width: 80,
+                        child: Column(
+                          children: <Widget>[
+                            Container(
+                              height: 60,
+                              width: MediaQuery.of(context).size.width,
+                              child: _warungs[index].photos.length > 0 ? Image.network(UPLOAD+'/'+_warungs[index].photos[0].path, fit: BoxFit.fitWidth, alignment: FractionalOffset.center) : Icon(Icons.camera_alt),
+                            ),
+                            Text(_warungs[index].name)
+                          ],
+                        )
+                      );
+                    }
+                  ),
+                ),
+                SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text('Rekomendasi Makan ini', style: TextStyle(color: Colors.black54)),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, '/warung');
+                        },
+                        child: Text('Lihat Semua >', style: TextStyle(color: Colors.black54))
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  height: 120,
+                  child:  ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _warungs.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        padding: EdgeInsets.all(8.0),
+                        width: 80,
+                        child: Column(
+                          children: <Widget>[
+                            Container(
+                              height: 60,
+                              width: MediaQuery.of(context).size.width,
+                              child: _warungs[index].photos.length > 0 ? Image.network(UPLOAD+'/'+_warungs[index].photos[0].path, fit: BoxFit.fitWidth, alignment: FractionalOffset.center) : Icon(Icons.camera_alt),
+                            ),
+                            Text(_warungs[index].name)
+                          ],
+                        )
+                      );
+                    }
+                  ),
+                )
+              ],
             ),
           ),
         ),
@@ -101,6 +268,11 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 }
 
